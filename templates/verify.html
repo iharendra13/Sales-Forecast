@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Verify OTP</title>
+<style>
+body{text-align:center;margin-top:50px;}
+</style>
+</head>
+<body>
+
+<h2>Verify OTP</h2>
+<p>OTP: {{ otp_display }}</p>
+
+<form method="post">
+<input type="number" name="otp" placeholder="Enter OTP" required>
+<button type="submit">Verify</button>
+</form>
+
+<p>{{ error }}</p>
+
+</body>
+</html>

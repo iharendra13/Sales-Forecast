@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:sans-serif;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+color:white;
+text-align:center;
+}
+.nav{
+display:flex;
+justify-content:space-between;
+padding:15px;
+background:rgba(0,0,0,0.3);
+}
+.box{
+background:rgba(255,255,255,0.1);
+padding:20px;
+margin:20px;
+border-radius:15px;
+}
+input{
+display:block;
+margin:10px auto;
+padding:10px;
+border-radius:10px;
+border:none;
+}
+button{
+padding:10px 20px;
+background:#00c6ff;
+border:none;
+border-radius:10px;
+color:white;
+cursor:pointer;
+}
+.chart{
+width:90%;
+max-width:700px;
+margin:20px auto;
+background:rgba(255,255,255,0.1);
+padding:20px;
+border-radius:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+<h2>Dashboard</h2>
+<a href="/logout" style="color:red;">Logout</a>
+</div>
+
+<div class="box">
+<h2>Sales Forecast</h2>
+
+<form method="post" action="/predict">
+<input type="number" name="year" placeholder="Year" required>
+<input type="number" name="month" placeholder="Month" required>
+<input type="number" name="day" placeholder="Day" required>
+<input type="number" name="week" placeholder="Week" required>
+<input type="number" name="lag_1" placeholder="Yesterday Sales" required>
+<input type="number" name="lag_7" placeholder="Last Week Sales" required>
+<button type="submit">Predict</button>
+</form>
+
+<h3>{{ prediction_text }}</h3>
+</div>
+
+<div class="chart"><canvas id="c1" data-labels="{{ labels|default([])|tojson }}" data-values="{{ values|default([])|tojson }}"></canvas></div>
+<div class="chart"><canvas id="c2" data-labels="{{ labels|default([])|tojson }}" data-values="{{ values|default([])|tojson }}"></canvas></div>
+<div class="chart"><canvas id="c3" data-week-labels="{{ week_labels|default([])|tojson }}" data-week-values="{{ week_values|default([])|tojson }}"></canvas></div>
+<div class="chart"><canvas id="c4" data-compare-labels="{{ compare_labels|default([])|tojson }}" data-compare-values="{{ compare_values|default([])|tojson }}"></canvas></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+// Direct Jinja variables (SAFE)
+const labels = {{ labels|default([])|tojson }};
+const values = {{ values|default([])|tojson }};
+const week_labels = {{ week_labels|default([])|tojson }};
+const week_values = {{ week_values|default([])|tojson }};
+const compare_labels = {{ compare_labels|default([])|tojson }};
+const compare_values = {{ compare_values|default([])|tojson }};
+
+console.log("DATA:", labels, values);
+
+// Chart 1
+if(labels.length > 0){
+new Chart(document.getElementById("c1"), {
+type: 'bar',
+data: {
+labels: labels,
+datasets: [
+{label:'Sales', data: values},
+{type:'line', label:'Trend', data: values}
+]
+}
+});
+}
+
+// Chart 2
+if(labels.length > 0){
+new Chart(document.getElementById("c2"), {
+type: 'pie',
+data: {
+labels: labels,
+datasets: [{ data: values }]
+}
+});
+}
+
+// Chart 3
+if(week_labels.length > 0){
+new Chart(document.getElementById("c3"), {
+type: 'line',
+data: {
+labels: week_labels,
+datasets: [{ data: week_values }]
+}
+});
+}
+
+// Chart 4
+if(compare_labels.length > 0){
+new Chart(document.getElementById("c4"), {
+type: 'bar',
+data: {
+labels: compare_labels,
+datasets: [{ data: compare_values }]
+}
+});
+}
+
+});
+</script>
+
+</body>
+</html>
